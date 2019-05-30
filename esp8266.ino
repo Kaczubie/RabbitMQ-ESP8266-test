@@ -1,8 +1,10 @@
+//Zrodlo: https://techtutorialsx.com/2017/04/24/esp32-subscribing-to-mqtt-topic/
+
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
  
-const char* ssid = "WIFI_SSID";
-const char* password =  "WIFI_PASS";
+const char* ssid = "Internet_Domowy_3493B8";
+const char* password =  "MzQ5M0I4";
 const char* mqttServer = "192.168.0.22";
 const int mqttPort = 1883;
 const char* mqttUser = "guest";
@@ -25,7 +27,7 @@ void setup() {
  
   client.setServer(mqttServer, mqttPort);
   client.setCallback(callback);
- 
+  
   while (!client.connected()) {
     Serial.println("Connecting to MQTT...");
  
@@ -41,12 +43,14 @@ void setup() {
       
     }
   }
- 
+  client.subscribe("test/hello");
+
   client.publish("test/hello", "Hello from ESP8266");
   Serial.print("Message sent ");
   
 }
 void send_btn_pressed_msg(){
+  
   client.publish("test/hello", "Button pressed");
   Serial.print("Message sent ");
 }
@@ -66,14 +70,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
 }
  
 void loop() {
+  client.loop();
   int val = 0;
   while(1){
     val = digitalRead(inPin);
-    
     if(!val){
         val = digitalRead(inPin);
-        Serial.println("Button pressed  ");
-        Serial.println(val);
+        Serial.println("Button pressed");
         send_btn_pressed_msg();
         while(!val){
           val = digitalRead(inPin);
@@ -81,7 +84,8 @@ void loop() {
         }
     }
      else{
-      delay(20);
+        client.loop();
+        delay(10);
       }
     }
   
